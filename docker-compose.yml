@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  db:
+    image: mysql:8
+    ports:
+      - "33060:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./database/:/docker-entrypoint-initdb.d/
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ferreteria
+      MYSQL_DATABASE: ferreteria
+      MYSQL_USER: leydi
+      MYSQL_PASSWORD: leydi
+
+  phpadmin:
+    image: "phpmyadmin/phpmyadmin"
+    ports:
+      - "8080:80"
+    links:
+      - db
+  web:
+    build:
+      args:
+        user: cristofer
+        uid: 1000
+      dockerfile: ./ferreteria/Dockerfile
+      context: .
+    image: ferreteria
+    container_name: ferreteria-web
+    ports:
+      - "3000:80"
+    links:
+      - db
+    volumes:
+      - .:/var/www/html
+volumes:
+  db_data: {}
